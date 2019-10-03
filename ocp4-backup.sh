@@ -18,7 +18,7 @@ test_clustername() {
       echo "another"
       ;;
     *)
-      echo "Specify an cluster name"
+      echo "Specify a cluster name"
       exit 1
       ;;
   esac

@@ -3,22 +3,22 @@
 #
 # Paul Badcock - Oct 3, 2019
 
-ENVIRONMENT=${1}
+CLUSTERNAME=${1}
 
-test_environment() {
-  case ${ENVIRONMENT} in
+test_clustername() {
+  case ${CLUSTERNAME} in
     nonprod)
       ETCD_HOST="etcd-0.cluster.domain"
       ETCD_USER="core"
       ETCD_KEYFILE="keyfile"
       LOCAL_BACKUP_DIR="/backup/cluster-ocp/"
-      BACKUP_FILE="ocp-${ENVIRONMENT}-`date +%F`-backup.tgz"
+      BACKUP_FILE="ocp-${CLUSTERNAME}-`date +%F`-backup.tgz"
       ;;
     another)
       echo "another"
       ;;
     *)
-      echo "Specify an environment"
+      echo "Specify an cluster name"
       exit 1
       ;;
   esac
@@ -35,5 +35,5 @@ move_data() {
   ssh -i ${ETCD_KEYFILE} ${ETCD_USER}@${ETCD_HOST} "rm -f ./${BACKUP_FILE}" 2>&1 &> /dev/null || error_exit "Unable to remove remote backup"
 }
 
-test_environment
+test_clustername
 move_data

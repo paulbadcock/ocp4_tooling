@@ -41,7 +41,9 @@ logdir /var/log/chrony
 
 ```
 
-Modify your server sources as needed then copy your contents into a [URLencode tool](https://www.urlencoder.org/).
+### Setting up custom configs
+
+Modify your server lines to your custom NTP sources as needed then copy your contents into a [URLencode tool](https://www.urlencoder.org/).
 
 Replace the line data line in the yaml file(s) on line 21 with
 ```
@@ -49,3 +51,39 @@ Replace the line data line in the yaml file(s) on line 21 with
 ```
 
 Note: the **data:,** is critical to operation
+
+### Applying NTP settings
+
+With your custom configs you need to apply them to OpenShifts machine configuration.
+
+As a cluster-admin
+
+`oc apply -f 99-ntp-sources-worker.yaml`
+
+Monitor the workers below and when comfortable apply it to the masters with
+
+`oc apply -f 99-ntp-sources-master.yaml`
+
+You should then see workers cordon/disable scheduling and drain pods from their workloads
+
+`oc get nodes`
+
+And confirm it
+
+```
+NAME                             STATUS                     ROLES    AGE     VERSION
+etcd-0.cluster.domain            Ready                      master   2d21h   v1.13.4+12ee15d4a
+etcd-1.cluster.domain            Ready                      master   2d21h   v1.13.4+12ee15d4a
+etcd-2.cluster.domain            Ready                      master   2d21h   v1.13.4+12ee15d4a
+worker-0.cluster.domain          Ready,SchedulingDisabled   worker   2d21h   v1.13.4+12ee15d4a
+worker-1.cluster.domain          Ready                      worker   2d21h   v1.13.4+12ee15d4a
+worker-2.cluster.domain          Ready                      worker   2d21h   v1.13.4+12ee15d4a
+```
+
+This process will continue for all the workers in the cluster. You should be able to confirm their time sources after reboot by running the `chronyc sources` command via SSH.
+
+Or as a part of one big command
+
+```
+for i in {etcd-0,etcd-1,etcd-2,worker-0,worker-1,worker-2}; do ssh -i cluster_rsa_key core@${i}.cluster.domain 'chronyc sources'; done
+```

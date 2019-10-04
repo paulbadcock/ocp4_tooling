@@ -19,14 +19,17 @@ Replicating the conditional test in the case like `nonprod` will provide a way t
 
 ## NTP configuration
 
-When you need to set your time sources to non pool resources you can use the machine configs
+If you need to change your NTP resources from generic internet sources you can use custom machine configs.
 
 Filename | Usage
 ---------|------
 99-ntp-sources-master.yaml | Master config
 99-ntp-sources-worker.yaml | Worker config
 
+Each of these files use label selectors in the metadata to apply to either the master or worker nodes.
+
 In order to specify the time sources you need to take a sample chrony.conf file like below
+
 ```
 server 0.rhel.pool.ntp.org iburst
 server 1.rhel.pool.ntp.org iburst
@@ -41,6 +44,7 @@ logdir /var/log/chrony
 
 ```
 
+
 ### Setting up custom configs
 
 Modify your server lines to your custom NTP sources as needed then copy your contents into a [URLencode tool](https://www.urlencoder.org/).
@@ -52,19 +56,20 @@ Replace the line data line in the yaml file(s) on line 21 with
 
 Note: the **data:,** is critical to operation
 
+
 ### Applying NTP settings
 
-With your custom configs you need to apply them to OpenShifts machine configuration.
+With your custom configs you need to apply them to OpenShift. Soon as these machine configurations are applied the configs will be rendered to a new version of the master or worker machine config pools and rolling upgrades will start. If you wish you can apply one or both at the same time as a cluster-admin depending on the confidence.
 
-As a cluster-admin
+To apply the config to the workers
 
 `oc apply -f 99-ntp-sources-worker.yaml`
 
-Monitor the workers below and when comfortable apply it to the masters with
+To apply the config to the masters
 
 `oc apply -f 99-ntp-sources-master.yaml`
 
-You should then see workers cordon/disable scheduling and drain pods from their workloads
+You should then see nodes cordon/disable scheduling and drain pods from their workloads
 
 `oc get nodes`
 
@@ -80,7 +85,7 @@ worker-1.cluster.domain          Ready                      worker   2d21h   v1.
 worker-2.cluster.domain          Ready                      worker   2d21h   v1.13.4+12ee15d4a
 ```
 
-This process will continue for all the workers in the cluster. You should be able to confirm their time sources after reboot by running the `chronyc sources` command via SSH.
+This process will continue for all the nodes in the cluster. You should be able to confirm their time sources after reboot by running the `chronyc sources` command via SSH.
 
 Or as a part of one big command
 

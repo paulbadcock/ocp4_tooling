@@ -1,0 +1,25 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-ntp-sources-worker
+  labels:
+    machineconfiguration.openshift.io/role: worker
+spec:
+  config:
+    ignition:
+      config: {}
+      security:
+        tls: {}
+      timeouts: {}
+      version: 2.2.0
+    networkd: {}
+    passwd: {}
+    storage:
+      files:
+        - contents:
+            source: >-
+              data:,server%200.rhel.pool.ntp.org%20iburst%0Aserver%201.rhel.pool.ntp.org%20iburst%0Aserver%202.rhel.pool.ntp.org%20iburst%0Aserver%203.rhel.pool.ntp.org%20iburst%0Adriftfile%20%2Fvar%2Flib%2Fchrony%2Fdrift%0Amakestep%201.0%203%0Artcsync%0Akeyfile%20%2Fetc%2Fchrony.keys%0Aleapsectz%20right%2FUTC%0Alogdir%20%2Fvar%2Flog%2Fchrony%0A
+            verification: {}
+          filesystem: root
+          mode: 420
+          path: /etc/chrony.conf

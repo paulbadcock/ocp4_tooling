@@ -16,3 +16,36 @@ The clustername is used as a predefined list of clusters that provide 4 pieces o
 5. BACKUP_FILE - A way to customize the backup file name
 
 Replicating the conditional test in the case like `nonprod` will provide a way to introduce multiple clusternames.
+
+## NTP configuration
+
+When you need to set your time sources to non pool resources you can use the machine configs
+
+Filename | Usage
+---------|------
+99-ntp-sources-master.yaml | Master config
+99-ntp-sources-worker.yaml | Worker config
+
+In order to specify the time sources you need to take a sample chrony.conf file like below
+```
+server 0.rhel.pool.ntp.org iburst
+server 1.rhel.pool.ntp.org iburst
+server 2.rhel.pool.ntp.org iburst
+server 3.rhel.pool.ntp.org iburst
+driftfile /var/lib/chrony/drift
+makestep 1.0 3
+rtcsync
+keyfile /etc/chrony.keys
+leapsectz right/UTC
+logdir /var/log/chrony
+
+```
+
+Modify your server sources as needed then copy your contents into a [URLencode tool](https://www.urlencoder.org/).
+
+Replace the line data line in the yaml file(s) on line 21 with
+```
+              data:,URLENCODEDSRING......
+```
+
+Note: the **data:,** is critical to operation

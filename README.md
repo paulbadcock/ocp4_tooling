@@ -87,3 +87,15 @@ Or as a part of one big command
 ```
 for i in {etcd-0,etcd-1,etcd-2,worker-0,worker-1,worker-2}; do ssh -i cluster_rsa_key core@${i}.cluster.domain 'chronyc sources'; done
 ```
+
+And you should see something like
+
+```
+210 Number of sources = 3
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^* ntpsource1                    1   7   377   128    -25us[  -33us] +/-  764us
+^- ntpsource2                    3   6   377     1    -25us[  -25us] +/- 7064us
+^- ntpsource3                    3   6   377    59   +112us[ +112us] +/- 6193us
+^- ntpsource4                    1   6   377    59    +34us[  +45us] +/-  834us
+```
